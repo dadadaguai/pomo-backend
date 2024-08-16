@@ -32,7 +32,7 @@ def create_app():
     # 从 app.routes 模块导入 api 蓝图
     from app.routes import api, index
     # 注册 api 蓝图到 Flask 应用
-    app.register_blueprint(api.bp)
+    # app.register_blueprint(api.bp)
     app.register_blueprint(index.bp)
     # 进入应用上下文，确保所有数据库操作都在应用的上下文中执行
     with app.app_context():

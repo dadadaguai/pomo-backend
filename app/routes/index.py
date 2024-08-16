@@ -2,7 +2,9 @@ from flask import Blueprint, jsonify, request
 from app.models.pomodoro import User
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timedelta
+from flask_jwt_extended import create_access_token,jwt_required, get_jwt_identity
+
 
 bp = Blueprint('api/index', __name__, url_prefix='/api/index')
 
@@ -34,16 +36,32 @@ def login():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
-
+    print(data)
     user = User.query.filter_by(username=username).first()
     if user and check_password_hash(user.password, password):
         user.last_login = datetime.utcnow()
         db.session.commit()
-        return jsonify({'message': '登录成功', 'user_id': user.id}), 200
+
+
+        # 创建 JWT
+        access_token = create_access_token(identity=user.id, expires_delta=timedelta(days=1))
+        return jsonify({
+            'message': '登录成功',
+            'user_id': user.id,
+            'access_token': access_token
+        }), 200
     else:
         return jsonify({'message': '用户名或密码错误'}), 401
 
 # 以下暂未实现。
+
+
+@bp.route('/protected', methods=['GET'])
+@jwt_required()
+def protected():
+    current_user_id = get_jwt_identity()
+    return jsonify({'logged_in_as': current_user_id}), 200
+
 @bp.route('/users', methods=['GET'])
 def get_users():
     users = User.query.all()

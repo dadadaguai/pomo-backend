@@ -31,31 +31,23 @@ def register():
     return jsonify({'message': '注册成功'}), 201
 
 
+
+
+
 @bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
 
+    print(data)
     user = User.query.filter_by(username=username).first()
     if user and check_password_hash(user.password, password):
         user.last_login = datetime.utcnow()
         db.session.commit()
-
-        print(user)
-
-        # 创建 JWT
-        access_token = create_access_token(identity=user.id, expires_delta=timedelta(days=1))
-        print(access_token)
-        return jsonify({
-            'message': '登录成功',
-            'user_id': user.id,
-            'access_token': access_token
-        }), 200
+        return jsonify({'message': '登录成功', 'user_id': user.id}), 200
     else:
         return jsonify({'message': '用户名或密码错误'}), 401
-
-
 @bp.route('/protected', methods=['GET'])
 @jwt_required()
 def protected():
