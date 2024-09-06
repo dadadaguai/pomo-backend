@@ -12,6 +12,6 @@ class Config:
     # 定义数据库的连接字符串
     # 首先尝试从环境变量 DATABASE_URL 中获取，如果没有设置，则使用 SQLite 数据库，数据库文件位于当前文件的同级目录下
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'pomodoro.db')
+        'sqlite:///' + os.path.join(basedir, 'test.db')
     # 设置 SQLAlchemy 不追踪对象的修改，避免在每次修改时都触发数据库操作
     SQLALCHEMY_TRACK_MODIFICATIONS = False

@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, make_response
-from app.models.pomodoro import User
+from app.models.User import User
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta

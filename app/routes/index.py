@@ -1,6 +1,9 @@
 import pytz
 from flask import Blueprint, jsonify, request
-from app.models.pomodoro import User, PomodoroSummary, PomodoroSession
+#from app.models.pomodoro import User, PomodoroSummary, PomodoroSession
+from app.models.User import User
+from app.models.PomodoroSession import PomodoroSession
+from app.models.PomodoroSummary import PomodoroSummary
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
