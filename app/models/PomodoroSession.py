@@ -16,9 +16,7 @@ class PomodoroSession(db.Model):
     def __repr__(self):
         return '<PomodoroSession %r>' % self.id
 
-    def set_break_duration(self, end_time, duration):
-        self.end_time = end_time
-        self.duration = duration
+    def set_break_duration(self):
         if self.completed:
             # 计算休息时间，假设 end_time 和 start_time 都是以 datetime 对象存储的
             self.break_duration = (self.end_time - self.start_time).seconds / 1000 - self.duration

@@ -9,79 +9,21 @@ from datetime import datetime, timedelta
 from flask_jwt_extended import create_access_token,jwt_required, get_jwt_identity
 
 
-bp = Blueprint('api/index', __name__, url_prefix='/api/index')
+bp = Blueprint('api/pomodoro_service', __name__, url_prefix='/api/pomodoro_service')
 
-@bp.route('/register', methods=['POST'])
-def register():
-    data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
-    email = data.get('email')
-
-    if not username or not password or not email:
-        return jsonify({'message': '所有字段都是必填的'}), 400
-
-    if User.query.filter_by(username=username).first():
-        return jsonify({'message': '用户名已存在'}), 400
-
-    if User.query.filter_by(email=email).first():
-        return jsonify({'message': '邮箱已被注册'}), 400
-
-    hashed_password = generate_password_hash(password)
-    new_user = User(username=username, password=hashed_password, email=email)
-    db.session.add(new_user)
-    db.session.commit()
-
-    return jsonify({'message': '注册成功'}), 201
-
-@bp.route('/login', methods=['POST'])
-def login():
-    data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
-    print(data)
-    user = User.query.filter_by(username=username).first()
-    if user and check_password_hash(user.password, password):
-        user.last_login = datetime.utcnow()
-        db.session.commit()
-
-        # 创建 JWT
-        access_token = create_access_token(identity=user.id, expires_delta=timedelta(days=1))
-        return jsonify({
-            'message': '登录成功',
-            'user_id': user.id,
-            'access_token': access_token
-        }), 200
-    else:
-        return jsonify({'message': '用户名或密码错误'}), 401
-
-# 以下暂未实现。
-
-
-@bp.route('/protected', methods=['GET'])
-@jwt_required()
-def protected():
-    current_user_id = get_jwt_identity()
-    return jsonify({'logged_in_as': current_user_id}), 200
-
-@bp.route('/users', methods=['GET'])
-def get_users():
-    users = User.query.all()
-    return jsonify([{'id': user.id, 'username': user.username, 'email': user.email} for user in users])
-
-# 在这里可以添加更多的 API 路由...
-
-# 正常结束的番茄钟请求
+# 正常结束的番茄钟请求.包含番茄钟的信息和笔记的信息
 @bp.route('/add_normal_pomodoro', methods=['POST'])
+@jwt_required()  # 应用JWT保护
 def add_normal_pomodoro():
+    print("1111111111111111")
+    user_id = get_jwt_identity()  # 获取当前用户的ID
     data = request.get_json()
-    user_id = data.get('UserID')
     start_time_str = data.get('StartTime')
     end_time_str = data.get('EndTime')
     duration = data.get('Duration')
-    completed = data.get('Completed', False)  # 默认为False
+    completed = data.get('Completed')  # 默认为False
     summary_text = data.get('SummaryText')
-
+    print(user_id)
     # 验证用户是否存在
     user = User.query.filter_by(id=user_id).first()
     if not user:
@@ -93,20 +35,15 @@ def add_normal_pomodoro():
         end_time = datetime.fromisoformat(end_time_str).replace(tzinfo=pytz.utc)
     except ValueError:
         return jsonify({'message': '无效的时间格式'}), 400
-    break_duration = 0
-    if completed:
-        is_break_duration = (end_time - start_time) / 1000 - duration
-        if is_break_duration > 0:
-            break_duration = is_break_duration  # 记录番茄的预定时间和实际时间的差值。
     # 创建番茄钟会话
     pomodoro_session = PomodoroSession(
         user_id=user_id,
         start_time=start_time,
         end_time=end_time,
         duration=duration,
-        break_duration=break_duration,
         completed=completed
     )
+    pomodoro_session.set_break_duration()
     db.session.add(pomodoro_session)
 
     # 提交数据库会话以生成PomodoroSession的id

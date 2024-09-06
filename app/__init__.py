@@ -23,7 +23,7 @@ def create_app():
     # 添加jwt
     app.config['JWT_SECRET_KEY'] = 'dadadaguai'  # 更改为一个安全的密钥,在实际应用中使用一个安全的随机值
     app.config['JWT_TOKEN_LOCATION'] = ['cookies']
-    app.config['JWT_COOKIE_SECURE'] = True  # 在生产环境中使用
+    app.config['JWT_COOKIE_SECURE'] = False  # 在生产环境中使用
     app.config['JWT_COOKIE_CSRF_PROTECT'] = True
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)  # 设置访问令牌过期时间
     jwt = JWTManager(app)
@@ -35,10 +35,12 @@ def create_app():
     CORS(app, supports_credentials=True)
 
     # 从 app.routes 模块导入 api 蓝图
-    from app.routes import index, login
+    from app.routes import index, login, user_service,pomodoro_service
     # 注册 api 蓝图到 Flask 应用
     app.register_blueprint(index.bp)
     app.register_blueprint(login.bp)
+    app.register_blueprint(user_service.bp)
+    app.register_blueprint(pomodoro_service.bp)
     # 进入应用上下文，确保所有数据库操作都在应用的上下文中执行
     with app.app_context():
         # 创建所有在模型中定义的表，如果它们还不存在的话
