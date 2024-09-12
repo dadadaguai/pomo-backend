@@ -35,12 +35,11 @@ def create_app():
     CORS(app, supports_credentials=True)
 
     # 从 app.routes 模块导入 api 蓝图
-    from app.routes import index, login, user_service,pomodoro_service
+    from app.routes import user_service,pomodoro_service,auth
     # 注册 api 蓝图到 Flask 应用
-    app.register_blueprint(index.bp)
-    app.register_blueprint(login.bp)
     app.register_blueprint(user_service.bp)
     app.register_blueprint(pomodoro_service.bp)
+    app.register_blueprint(auth.bp)
     # 进入应用上下文，确保所有数据库操作都在应用的上下文中执行
     with app.app_context():
         # 创建所有在模型中定义的表，如果它们还不存在的话

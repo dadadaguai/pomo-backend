@@ -49,6 +49,7 @@ def login():
         access_token = create_access_token(identity=user.id, expires_delta=timedelta(days=1))
         return jsonify({
             'message': '登录成功',
+            'user_name':user.username,
             'user_id': user.id,
             'access_token': access_token
         }), 200

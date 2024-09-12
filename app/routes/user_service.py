@@ -3,8 +3,6 @@ from http.client import responses
 import pytz
 from flask import Blueprint, jsonify, request, make_response
 from app.models.User import User
-from app.models.PomodoroSession import PomodoroSession
-from app.models.PomodoroSummary import PomodoroSummary
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
@@ -13,6 +11,7 @@ from flask_jwt_extended import create_access_token,jwt_required, get_jwt_identit
 
 bp = Blueprint('api/user_service', __name__, url_prefix='/api/user_service')
 
+# 注册用户API
 @bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -34,8 +33,9 @@ def register():
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({'message': '注册成功'}), 201
+    return jsonify({'message': '注册成功'}), 200
 
+# 登录API
 @bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -50,12 +50,26 @@ def login():
         access_token = create_access_token(identity=user.id, expires_delta=timedelta(days=1))
         response = make_response(jsonify({
             'message': '登录成功',
+            'username':user.username,
             'user_id': user.id,
             'access_token': access_token
         }), 200)
-        # 设置 HTTPOnly cookies
-        response.set_cookie('user_id', str(user.id))
-        response.set_cookie('access_token', access_token)
+        # 暂时不设置 HTTPOnly cookies
+        # 设置cookie，SameSite=None 允许跨域请求携带cookie
+        max_age = timedelta(days=1).total_seconds()
+        response.set_cookie('user_id', str(user.id),
+                            path='/',  # 设置为根路径
+                            samesite='None',  # 允许跨站点请求
+                            secure=False,  # 使用 HTTPS
+                            httponly=False,  # 允许 JavaScript 访问
+                            max_age=86400)
+        response.set_cookie('access_token', str(access_token),
+                            path='/',  # 设置为根路径
+                            samesite='None',  # 允许跨站点请求
+                            secure=False,  # 使用 HTTPS
+                            httponly=False,  # 允许 JavaScript 访问
+                            max_age=86400)
+        print("\nSetting cookies:", response.headers.getlist('Set-Cookie'))
         return response
     else:
         return jsonify({'message': '用户名或密码错误'}), 401

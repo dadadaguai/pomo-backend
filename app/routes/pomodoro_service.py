@@ -15,9 +15,8 @@ bp = Blueprint('api/pomodoro_service', __name__, url_prefix='/api/pomodoro_servi
 @bp.route('/add_normal_pomodoro', methods=['POST'])
 @jwt_required()  # 应用JWT保护
 def add_normal_pomodoro():
-    print("1111111111111111")
-    user_id = get_jwt_identity()  # 获取当前用户的ID
     data = request.get_json()
+    user_id = request.cookies.get('user_id')# 获取当前用户的ID
     start_time_str = data.get('StartTime')
     end_time_str = data.get('EndTime')
     duration = data.get('Duration')
@@ -43,7 +42,7 @@ def add_normal_pomodoro():
         duration=duration,
         completed=completed
     )
-    pomodoro_session.set_break_duration()
+    pomodoro_session.set_break_duration() # 计算休息时间
     db.session.add(pomodoro_session)
 
     # 提交数据库会话以生成PomodoroSession的id
