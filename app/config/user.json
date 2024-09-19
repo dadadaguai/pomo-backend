@@ -1,0 +1,11 @@
+{
+    "daily_report": {
+        "generation_address": "E://obsidian_note//daily//"
+    },
+    "ai_api": {
+        "endpoint": "http://example.com/new_ai_endpoint"
+    },
+    "github_repo": {
+        "address": ""
+    }
+}
