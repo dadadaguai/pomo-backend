@@ -18,10 +18,8 @@ class PomodoroSummary(db.Model):
     keywords = db.Column(MutableJson)  # 使用 MutableJson 存储列表
     update_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)  # 最后修改时间，默认为当前 UTC 时间，每次更新记录时自动设置
 
-    def __init__(self, session_id, summary_text):
-        self.session_id = session_id
-        self.summary_text = summary_text
-        self.md5_hash = self.calculate_md5_hash(summary_text)
+    def set_md5_hash(self):
+        self.md5_hash = self.calculate_md5_hash(self.summary_text)
 
     @staticmethod
     def calculate_md5_hash(text):
