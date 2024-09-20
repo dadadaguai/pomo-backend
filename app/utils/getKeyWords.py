@@ -3,7 +3,7 @@ from zhipuai import ZhipuAI
 # 提权关键字函数
 def getKeyWords(content):
     # 替换成你的 API key
-    api_key = "5bde415bb6530bf50d2805e86dcce7db.GK4MMahxeGJVr23Z"
+    api_key = "xx.xx"
     client = ZhipuAI(api_key=api_key)
 
     # 将用户内容添加到消息列表中
